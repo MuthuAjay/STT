@@ -59,6 +59,7 @@ class ImprovementStep(Step):
         print("\n=== Sample Improvements ===")
         for _, row in result_df.sample(5, random_state=42).iterrows():
             print(f"\n  REF   : {row['transcript']}")
-            print(f"  BASE  : {row.get('hypothesis_norm', '')}")
-            print(f"  LM    : {row.get('hypothesis_lm', '')}")
+            print(f"  NORM  : {row.get('hypothesis_norm', '')}")
+            if "hypothesis_lm" in result_df.columns:
+                print(f"  LM    : {row.get('hypothesis_lm', '')}")
             print(f"  FINAL : {row['hypothesis']}")

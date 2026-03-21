@@ -133,7 +133,8 @@ class Improver:
 
         df["hypothesis_norm"]  = after_norm
         df["hypothesis_vocab"] = after_vocab
-        df["hypothesis_lm"]    = after_lm
+        if self._use_lm:
+            df["hypothesis_lm"] = after_lm
         df["hypothesis"]       = after_lower
 
         return df

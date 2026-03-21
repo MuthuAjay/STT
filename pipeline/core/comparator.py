@@ -103,6 +103,50 @@ class Comparator:
             print(f"  WER  : {row['base_wer']:.1f}% → {row['final_wer']:.1f}%  "
                   f"(Δ {row['wer_delta']:.1f}%)")
 
+    def plot_before_after(self, report: ComparisonReport, output_path: Path) -> None:
+        """Grouped bar chart: Baseline vs Improved across all four metrics."""
+        metrics = ["WER", "CER", "MER", "WIL"]
+        before  = [report.baseline_metrics.wer, report.baseline_metrics.cer,
+                   report.baseline_metrics.mer, report.baseline_metrics.wil]
+        after   = [report.improved_metrics.wer, report.improved_metrics.cer,
+                   report.improved_metrics.mer, report.improved_metrics.wil]
+
+        import numpy as np
+        x     = np.arange(len(metrics))
+        width = 0.35
+
+        fig, ax = plt.subplots(figsize=(9, 5))
+        bars_b = ax.bar(x - width / 2, before, width, label="Baseline",
+                        color="#4C72B0", edgecolor="white")
+        bars_a = ax.bar(x + width / 2, after,  width, label="Improved",
+                        color="#55A868", edgecolor="white")
+
+        ax.bar_label(bars_b, fmt="%.2f%%", padding=3, fontsize=9)
+        ax.bar_label(bars_a, fmt="%.2f%%", padding=3, fontsize=9)
+
+        # Annotate reduction arrows
+        for i, (b, a) in enumerate(zip(before, after)):
+            delta = b - a
+            ax.annotate(
+                f"▼{delta:.2f}%",
+                xy=(x[i], max(b, a) + 0.5),
+                ha="center", fontsize=8, color="#C44E52", fontweight="bold",
+            )
+
+        ax.set_xticks(x)
+        ax.set_xticklabels(metrics, fontsize=11)
+        ax.set_ylabel("Score (%)")
+        ax.set_ylim(0, max(before) * 1.35)
+        ax.set_title("Before vs After Post-Processing", fontsize=13)
+        ax.legend(fontsize=10)
+        ax.grid(axis="y", linestyle="--", alpha=0.4)
+
+        plt.tight_layout()
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(output_path, dpi=150)
+        plt.close()
+        print(f"[comparator] Before/after chart → {output_path}")
+
     def plot(self, report: ComparisonReport, output_path: Path) -> None:
         if not report.stages:
             return
@@ -136,7 +180,6 @@ class Comparator:
             ("After Norm.",      "hypothesis_norm"),
             ("After Vocab Bias", "hypothesis_vocab"),
             ("After LM Corr.",   "hypothesis_lm"),
-            ("After Lowercase",  "hypothesis"),
         ]
         results = []
         for label, col in stages:

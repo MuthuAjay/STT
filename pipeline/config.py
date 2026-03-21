@@ -66,10 +66,16 @@ class PathConfig:
             initial_prompt  = os.environ.get(
                 "STT_PROMPT",
                 (
-                    "DeepSeekMoE, GShard, ZeRO, DeepSpeed, MoE, mixture-of-experts, "
+                    "DeepSeekMoE, DeepSeekMoE-2B, DeepSeekMoE-16B, DeepSeekMoE-145B, "
+                    "DeepSeek-MoE, GShard, GShard-137B, ZeRO, ZeRO-Offload, DeepSpeed, "
+                    "MoE, mixture-of-experts, routed experts, shared experts, "
                     "fine-grained expert segmentation, shared expert isolation, "
-                    "expert specialization, Transformer, hidden dimension, "
-                    "warmup scheduler, activated parameters, language model."
+                    "expert specialization, activated parameters, expert parameters, "
+                    "top-K routing, load balancing, knowledge redundancy, knowledge hybridity, "
+                    "Transformer, feed-forward network, FFN, hidden dimension, "
+                    "warmup scheduler, learning rate scheduler, cosine annealing, "
+                    "Pile loss, HellaSwag, MMLU, TriviaQA, ARC, "
+                    "large language model, LLM, pre-training, fine-tuning, parameter efficiency, PyTorch."
                 ),
             ),
             cv_local_dir    = os.environ.get(

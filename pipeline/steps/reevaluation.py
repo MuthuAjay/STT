@@ -36,3 +36,4 @@ class ReevaluationStep(Step):
         comparator.print_report(report)
         comparator.print_top_improved(improved_df)
         comparator.plot(report, self._cfg.outputs_dir / "improvement_comparison.png")
+        comparator.plot_before_after(report, self._cfg.outputs_dir / "before_after.png")

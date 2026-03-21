@@ -1,0 +1,11 @@
+.env
+*.wav
+*.csv
+*.json
+*.png
+__pycache__/
+*.pyc
+*.mp3
+*.log
+*.txt
+*.venv

@@ -6,6 +6,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from .math_normalizer import normalise_exponents
+
 import pandas as pd
 from tqdm import tqdm
 
@@ -145,6 +147,7 @@ class Improver:
                      auto_corrections: dict) -> ImprovementResult:
         s1 = self._normalise(hypothesis)
         s2 = self._vocab_correct(s1, auto_corrections)
+        s2 = normalise_exponents(s2)
         s3 = self._lm_correct(s2) if self._use_lm else s2
         s4 = s3.lower()
         return ImprovementResult(

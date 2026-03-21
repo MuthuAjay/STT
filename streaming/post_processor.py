@@ -14,6 +14,8 @@ import json
 import re
 from pathlib import Path
 
+from math_normalizer import normalise_exponents
+
 
 # ── Normalisation rules (same as pipeline/core/improver.py) ──────────────────
 
@@ -83,6 +85,7 @@ class StreamingPostProcessor:
         """Normalise and vocab-correct a committed chunk.  Returns cleaned text."""
         text = self._normalise(text)
         text = self._vocab_correct(text)
+        text = normalise_exponents(text)
         return text
 
     # ── Strategy 1: text normalisation ───────────────────────────────────

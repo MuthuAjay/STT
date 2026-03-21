@@ -116,15 +116,25 @@ def load_wav(path: str) -> np.ndarray:
 
 # ── ASR factory ───────────────────────────────────────────────────────────────
 
-def make_processor(model_size: str, language: str, initial_prompt: str | None):
-    """Build OnlineASRProcessor with initial_prompt wired in."""
+def make_processor(model_size: str, language: str, initial_prompt: str | None,
+                   silence_ms: int = 2000):
+    """Build OnlineASRProcessor with initial_prompt and configurable VAD silence.
+
+    Args:
+        silence_ms: Milliseconds of silence before a speech segment is
+                    committed.  faster-whisper default is 2000 ms (2 s).
+                    Lower values (e.g. 500) give snappier commits but may
+                    cut mid-sentence.  Higher values wait longer before
+                    flushing, useful for slower or pausy speech.
+    """
     from whisper_online import FasterWhisperASR, OnlineASRProcessor
     import faster_whisper
 
-    _prompt = initial_prompt  # capture in closure
+    _prompt     = initial_prompt   # capture in closure
+    _silence_ms = silence_ms       # capture in closure
 
     class EnhancedFasterWhisperASR(FasterWhisperASR):
-        """Subclass that injects initial_prompt into every transcribe call."""
+        """Subclass that injects initial_prompt and VAD silence into every transcribe call."""
 
         def load_model(self, modelsize=None, cache_dir=None, model_dir=None):
             size = model_dir or modelsize
@@ -139,11 +149,15 @@ def make_processor(model_size: str, language: str, initial_prompt: str | None):
                 )
 
         def transcribe(self, audio, init_prompt=""):
-            # Merge caller's init_prompt with our domain prompt
             merged = " ".join(filter(None, [_prompt, init_prompt])).strip()
+            # Inject vad_parameters so silence threshold is honoured
+            self.transcribe_kargs["vad_parameters"] = {
+                "min_silence_duration_ms": _silence_ms,
+            }
             return super().transcribe(audio, init_prompt=merged)
 
     log.info("  Loading faster-whisper '%s' (lang=%s) …", model_size, language)
+    log.info("  VAD silence threshold : %d ms", silence_ms)
     if initial_prompt:
         log.info("  initial_prompt: %s…", initial_prompt[:80])
 
@@ -477,6 +491,10 @@ def _parse_args() -> argparse.Namespace:
                    help="Path to error_analysis.json for auto-corrections")
     p.add_argument("--no-prompt",   action="store_true",
                    help="Disable domain initial_prompt")
+    p.add_argument("--silence-ms",  type=int, default=2000,
+                   help="Milliseconds of silence before a speech segment is "
+                        "committed by the VAD (default: 2000). Lower = faster "
+                        "commits, higher = waits longer before flushing.")
     return p.parse_args()
 
 
@@ -502,7 +520,8 @@ def main() -> None:
 
     from post_processor import StreamingPostProcessor
     pp   = StreamingPostProcessor(error_json_path=error_json)
-    proc = make_processor(args.model, args.language, initial_prompt)
+    proc = make_processor(args.model, args.language, initial_prompt,
+                          silence_ms=args.silence_ms)
 
     if args.mode == "mic":
         mode_mic(proc, pp, args.chunk_sec, args.max_sec)

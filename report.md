@@ -41,7 +41,7 @@ The solution is a three-phase pipeline:
 
 | Phase | What it does |
 |---|---|
-| **Synthetic Data Generation** | Extracts sentences from ML research paper PDFs and synthesises audio with a local TTS model, producing perfectly aligned audio-transcript pairs |
+| **Synthetic Data Generation** | Extracts sentences from ML research paper PDFs and synthesises audio with a local TTS model, producing highly accurate and noise-free audio-transcript pairs |
 | **Offline Pipeline** | Transcribes, evaluates, analyses errors, applies improvement strategies, and re-evaluates |
 | **Real-Time Streaming** | Runs lightweight post-processing improvements in real time with sub-second latency |
 
@@ -432,7 +432,7 @@ Output column: `hypothesis_vocab`
 
 **Directory**: `streaming/`
 
-The streaming subsystem provides real-time transcription with the same text quality improvements as the offline pipeline, minus the LLM correction (which would break real-time factor).
+The streaming subsystem provides real-time transcription with the same text quality improvements as the offline pipeline, An optional LLM-based correction stage explored offline but excluded from streaming (which would break real-time factor).
 
 ### 5.1 ASR Backends
 
@@ -443,7 +443,6 @@ The streaming subsystem provides real-time transcription with the same text qual
 | `faster-whisper` | `FasterWhisperASR` | Primary — CUDA float16, fastest |
 | `whisper_timestamped` | `WhisperTimestampedASR` | Older, slower alternative |
 | `mlx-whisper` | `MLXWhisper` | Apple Silicon (M1/M2/M3) |
-| OpenAI API | `OpenaiApiASR` | Cloud fallback |
 
 `FasterWhisperASR` configuration:
 ```
@@ -723,7 +722,7 @@ Audio Input (microphone / WAV file)
 
 ## 7. Results
 
-### Synthetic Data — 200 utterances, whisper large-v3
+### Synthetic Data — whisper large-v3
 
 #### v4 — Expanded domain prompt (184 tokens)
 
@@ -735,7 +734,7 @@ Audio Input (microphone / WAV file)
 
 **`initial_prompt` alone**: −65.3% WER · −60.3% CER · −64.5% MER · −63.5% WIL
 
-**Full pipeline**: −65.5% WER · −60.8% CER
+**Full pipeline**: 65.5% relative reduction in WER And 60.8% relative reduction in CER
 
 #### Effect of `initial_prompt` (before vs after prompt only)
 
@@ -749,7 +748,7 @@ Audio Input (microphone / WAV file)
 | CER | 1.89% | 0.86% | **0.75%** |
 | Zero-WER utterances | — | 132 / 200 | **139 / 200** |
 
-Expanding the prompt within the 224-token Whisper limit adds **0.69% absolute WER improvement** at zero additional compute cost.
+Expanding the prompt within the 224-token Whisper limit adds **0.69% absolute WER improvement** at negligible additional compute cost.
 
 #### Before vs After Post-Processing (full pipeline)
 

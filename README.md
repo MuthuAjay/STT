@@ -99,15 +99,6 @@ STT/
 │   │   └── audio/
 │   └── detr_paper/
 │
-├── src/                             # Original standalone scripts (reference)
-│   ├── config.py
-│   ├── 02_baseline_transcription.py
-│   ├── 03_evaluation.py
-│   ├── 04_error_analysis.py
-│   ├── 05_improvement.py
-│   ├── 06_reevaluation.py
-│   └── run_pipeline.py
-│
 ├── {experiment_name}/               # Auto-created per experiment run
 │   ├── baseline_results.csv
 │   ├── improved_results.csv

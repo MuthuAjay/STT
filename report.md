@@ -765,6 +765,8 @@ Audio Input (microphone / WAV file)
 
 ## 7. Results
 
+> **Note:** Since the dataset is synthetically generated (clean audio, no noise or accents), the reported WER may underestimate error rates in real-world conditions.
+
 ### Synthetic Data — whisper large-v3
 
 #### v4 — Expanded domain prompt (184 tokens)

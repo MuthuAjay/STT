@@ -24,7 +24,6 @@ An end-to-end pipeline to analyse and improve STT transcription quality using **
                     │    S0. Re-transcription (initial_prompt)    │
                     │    S1. Text Normalisation                   │
                     │    S2. Vocabulary Biasing                   │
-                    │    S3. LM Post-Correction (Ollama)          │
                     │                    │                        │
                     │  Step 5: Re-evaluation                      │
                     │          Stage-by-stage comparison          │
@@ -50,7 +49,6 @@ An end-to-end pipeline to analyse and improve STT transcription quality using **
 |---|---|
 | ASR Engine | `faster-whisper` (CTranslate2) — large-v3 |
 | Evaluation | `jiwer` — WER / CER / MER / WIL |
-| LM Correction | Ollama `qwen3.5:4b` (local, no API key) |
 | Streaming | `whisper_streaming` local-agreement algorithm + Silero VAD |
 | Synthetic Data | PDF → TTS pipeline (`synthetic_data_generation/`) |
 | Audio I/O | `sounddevice` · `librosa` |
@@ -136,14 +134,7 @@ source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Install Ollama (optional — only needed for LM correction)
-
-```bash
-# Install Ollama: https://ollama.com/download
-ollama pull qwen3.5:4b
-```
-
-### 3. Prepare a manifest
+### 2. Prepare a manifest
 
 The pipeline expects a `manifest.csv` with at minimum two columns:
 
@@ -170,10 +161,6 @@ ls synthetic_data_generation/deepseekMOE_v2/manifest.csv
 STT_EXPERIMENT=my_run python -m pipeline \
   --manifest synthetic_data_generation/deepseekMOE_v2/manifest.csv
 
-# Skip LLM correction (faster, ~2 min vs ~5 min)
-STT_EXPERIMENT=my_run python -m pipeline \
-  --manifest synthetic_data_generation/deepseekMOE_v2/manifest.csv --no-lm
-
 # Skip re-transcription (use existing baseline hypothesis)
 python -m pipeline --no-retranscribe
 
@@ -185,8 +172,7 @@ python -m pipeline --steps 4 5 --force
 
 # Different experiment (different output folder)
 STT_EXPERIMENT=deepseekMOE_v4 python -m pipeline \
-  --manifest synthetic_data_generation/deepseekMOE_v2/manifest.csv --no-lm
-```
+  --manifest synthetic_data_generation/deepseekMOE_v2/manifest.csv```
 
 ### Environment variable overrides
 
@@ -197,13 +183,11 @@ STT_EXPERIMENT=deepseekMOE_v4 python -m pipeline \
 | `STT_MODEL` | `large-v3` | Whisper model size |
 | `STT_COMPUTE` | `float16` | CTranslate2 compute type |
 | `STT_SAMPLES` | `300` | Max utterances to process |
-| `STT_OLLAMA` | `qwen3.5:4b` | Ollama model |
 | `STT_PROMPT` | *(domain terms)* | `initial_prompt` for Whisper |
 
 ```bash
 STT_MODEL=large-v3 STT_COMPUTE=float16 STT_EXPERIMENT=run_01 \
-  python -m pipeline --manifest data/manifest.csv --no-lm
-```
+  python -m pipeline --manifest data/manifest.csv```
 
 ---
 
@@ -263,8 +247,6 @@ python streaming/enhanced_demo.py --mode file --audio file.wav --no-prompt
 | 0 | **Re-transcription** | Re-runs Whisper with domain `initial_prompt` to bias toward OOV technical terms |
 | 1 | **Text Normalisation** | Removes trailing `...` / `-`, collapses spaces, fixes comma-conjunction artifacts |
 | 2 | **Vocabulary Biasing** | Applies hand-crafted + auto-corrections from `error_analysis.json` (min count ≥ 5, 6 guards) |
-| 3 | **LM Post-correction** | Sends hypotheses to local Ollama LLM for context-aware correction (optional) |
-
 Auto-corrections are derived automatically from `error_analysis.json` with six guards to prevent over-correction:
 - Minimum frequency ≥ 5 occurrences
 - Skip common function words
@@ -468,8 +450,7 @@ python synthetic_data_generation/pdf_to_synthetic_data.py \
 
 # Use in the pipeline
 STT_EXPERIMENT=my_paper python -m pipeline \
-  --manifest synthetic_data_generation/my_paper/manifest.csv --no-lm
-```
+  --manifest synthetic_data_generation/my_paper/manifest.csv```
 
 ---
 
@@ -485,7 +466,6 @@ pandas
 matplotlib
 seaborn
 tqdm
-ollama            # Local LLM client (optional — LM correction only)
 PyMuPDF           # PDF text extraction (synthetic data generation)
 jupyter
 ```
@@ -501,9 +481,6 @@ Whisper's decoder is biased by prepending domain terms as a "fake" prior transcr
 
 **Why are auto-corrections guarded?**
 Naive substitution rules derived from error analysis caused WER regressions in early experiments (e.g. `"step" → "andstep"` from hyphen-stripped references). Six guards prevent compound-split artifacts, substring over-corrections, and digit/number-word swaps.
-
-**Why is LM correction optional?**
-Ollama adds 1–3s per utterance — acceptable for offline batch processing, but incompatible with real-time streaming (would exceed 1× RTF). The streaming demo therefore applies only normalisation and vocabulary biasing.
 
 **Why two separate packages (`pipeline/` and `src/`)?**
 `src/` contains the original numbered scripts kept intact for reproducibility and testing. `pipeline/` is a clean OOP rewrite that imports nothing from `src/` — it re-implements the same logic in a modular, testable structure.

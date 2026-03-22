@@ -109,8 +109,6 @@ STT/
 │   ├── before_after.png             # Baseline vs final grouped bar chart
 │   └── pipeline.log
 │
-├── notebooks/
-│   └── STT_Pipeline.ipynb
 ├── requirements.txt
 └── README.md
 ```

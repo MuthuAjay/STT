@@ -1,0 +1,34 @@
+# ── Core pipeline ─────────────────────────────────────────────────────────────
+faster-whisper>=1.0.0
+jiwer>=3.0.0
+pandas>=2.0.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+tqdm>=4.65.0
+
+# ── Audio I/O ─────────────────────────────────────────────────────────────────
+librosa>=0.10.0
+soundfile>=0.12.0
+sounddevice>=0.4.6
+scipy>=1.10.0
+
+# ── Streaming VAD ─────────────────────────────────────────────────────────────
+# torch is required for Silero VAD (streaming/silero_vad_iterator.py)
+# For GPU (CUDA 12.x):  pip install torch --index-url https://download.pytorch.org/whl/cu121
+# For CPU only:         pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch>=2.0.0
+
+# ── LLM post-correction (optional) ───────────────────────────────────────────
+# Required only when --use-lm is enabled. Needs Ollama running locally.
+# https://ollama.com/download
+ollama>=0.1.0
+
+# ── Synthetic data generation (optional) ─────────────────────────────────────
+PyMuPDF>=1.23.0
+# fish-speech must be installed from source:
+#   pip install git+https://github.com/fishaudio/fish-speech
+
+# ── Notebook ──────────────────────────────────────────────────────────────────
+jupyter>=1.0.0
+ipykernel>=6.0.0

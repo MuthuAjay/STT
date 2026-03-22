@@ -499,5 +499,5 @@ Whisper's decoder is biased by prepending domain terms as a "fake" prior transcr
 **Why are auto-corrections guarded?**
 Naive substitution rules derived from error analysis caused WER regressions in early experiments (e.g. `"step" → "andstep"` from hyphen-stripped references). Six guards prevent compound-split artifacts, substring over-corrections, and digit/number-word swaps.
 
-**Why two separate packages (`pipeline/` and `src/`)?**
-`src/` contains the original numbered scripts kept intact for reproducibility and testing. `pipeline/` is a clean OOP rewrite that imports nothing from `src/` — it re-implements the same logic in a modular, testable structure.
+**Why OOP pipeline instead of numbered scripts?**
+`pipeline/` is a clean OOP rewrite with an abstract `Step` base class, frozen dataclasses for config, and a `PipelineRunner` with zero business logic. This makes steps independently testable and the run order explicit at the call site.

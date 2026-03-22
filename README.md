@@ -291,6 +291,22 @@ Expanding the prompt within the 224-token Whisper limit adds **0.71% absolute WE
 | 11–30% | 21 |
 | >30% | 1 |
 
+#### Before vs After Post-Processing
+
+![Before vs After Post-Processing](deepseekMOE_v4/before_after.png)
+
+#### Stage-by-Stage Improvement
+
+![Stage-by-Stage Improvement](deepseekMOE_v4/improvement_comparison.png)
+
+#### WER Distribution
+
+![WER Distribution](deepseekMOE_v4/wer_distribution.png)
+
+#### Top Substitution Errors
+
+![Top Substitutions](deepseekMOE_v4/top_substitutions.png)
+
 ---
 
 ## Synthetic Data Generation

@@ -310,6 +310,10 @@ Substitution pairs are categorised into four groups:
 - `wer_distribution.png`: histogram of per-utterance WER values + bucketed bar chart (0%, 1–5%, 6–10%, 11–30%, >30%)
 - `top_substitutions.png`: horizontal bar chart of top-15 (ref→hyp) substitution pairs
 
+![WER Distribution](deepseekMOE_v4/wer_distribution.png)
+
+![Top Substitutions](deepseekMOE_v4/top_substitutions.png)
+
 ### 4.5 Step 4 — Improvement Strategies
 
 **Class**: `ImprovementStep` (`pipeline/steps/improvement.py`)
@@ -411,6 +415,10 @@ Output column: `hypothesis_vocab`
 
 - `improvement_comparison.png`: stage-by-stage WER and CER as a line+bar chart — shows where improvement is concentrated
 - `before_after.png`: grouped bar chart comparing baseline vs final across all four metrics (WER, CER, MER, WIL)
+
+![Stage-by-Stage Improvement](deepseekMOE_v4/improvement_comparison.png)
+
+![Before vs After Post-Processing](deepseekMOE_v4/before_after.png)
 
 ---
 
@@ -740,6 +748,16 @@ Expanding the prompt within the 224-token Whisper limit adds **0.71% absolute WE
 | 6–10% | 24 |
 | 11–30% | 21 |
 | >30% | 1 |
+
+#### Visualisations
+
+![Before vs After Post-Processing](deepseekMOE_v4/before_after.png)
+
+![Stage-by-Stage Improvement](deepseekMOE_v4/improvement_comparison.png)
+
+![WER Distribution](deepseekMOE_v4/wer_distribution.png)
+
+![Top Substitution Errors](deepseekMOE_v4/top_substitutions.png)
 
 ---
 

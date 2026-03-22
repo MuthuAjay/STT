@@ -94,10 +94,6 @@ STT/
 │
 ├── synthetic_data_generation/       # PDF → audio pipeline
 │   ├── pdf_to_synthetic_data.py     # PDF text extraction + TTS synthesis
-│   ├── deepseekMOE_v2/              # DeepSeekMoE paper synthetic data
-│   │   ├── manifest.csv
-│   │   └── audio/
-│   └── detr_paper/
 │
 ├── {experiment_name}/               # Auto-created per experiment run
 │   ├── baseline_results.csv

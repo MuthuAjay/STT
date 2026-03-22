@@ -2,6 +2,10 @@
 
 An end-to-end pipeline to analyse and improve STT transcription quality using **open-source models only** — covering offline batch evaluation, five-stage post-processing, and enhanced real-time streaming.
 
+## Demo
+
+https://github.com/MuthuAjay/STT/raw/main/Demo/stt_demo.mp4
+
 ---
 
 ## System Design

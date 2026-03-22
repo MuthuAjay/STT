@@ -3,6 +3,10 @@
 **End-to-end Speech-to-Text quality improvement system**
 *From synthetic data creation to real-time streaming*
 
+## Demo
+
+https://github.com/MuthuAjay/STT/raw/main/Demo/stt_demo.mp4
+
 ---
 
 ## Table of Contents

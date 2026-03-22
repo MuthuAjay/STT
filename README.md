@@ -223,7 +223,7 @@ STT_EXPERIMENT=deepseekMOE_v4 python streaming/enhanced_demo.py \
   --mode batch \
   --manifest synthetic_data_generation/deepseekMOE_v2/manifest.csv \
   --samples-dir synthetic_data_generation/deepseekMOE_v2/audio \
-  --error-json deepseekMOE_v4/error_analysis.json \
+  --error-json experiment/error_analysis.json \
   --model large-v3 --n 20
 
 # Disable domain prompt (to isolate post-processing effect only)
@@ -297,19 +297,19 @@ Expanding the prompt within the 224-token Whisper limit adds **0.71% absolute WE
 
 #### Before vs After Post-Processing
 
-![Before vs After Post-Processing](deepseekMOE_v4/before_after.png)
+![Before vs After Post-Processing](experiment/before_after.png)
 
 #### Stage-by-Stage Improvement
 
-![Stage-by-Stage Improvement](deepseekMOE_v4/improvement_comparison.png)
+![Stage-by-Stage Improvement](experiment/improvement_comparison.png)
 
 #### WER Distribution
 
-![WER Distribution](deepseekMOE_v4/wer_distribution.png)
+![WER Distribution](experiment/wer_distribution.png)
 
 #### Top Substitution Errors
 
-![Top Substitutions](deepseekMOE_v4/top_substitutions.png)
+![Top Substitutions](experiment/top_substitutions.png)
 
 ---
 

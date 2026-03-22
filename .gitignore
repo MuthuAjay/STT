@@ -3,6 +3,7 @@
 *.csv
 *.json
 *.png
+!experiment/*.png
 __pycache__/
 *.pyc
 *.mp3

@@ -269,21 +269,35 @@ Auto-corrections are derived automatically from `error_analysis.json` with six g
 
 | Stage | WER | CER | MER | WIL |
 |---|---|---|---|---|
-| Baseline | 8.21% | 1.89% | 8.00% | 12.86% |
-| After Re-transcription + Norm | 2.85% | 0.75% | — | — |
+| Baseline (no prompt) | 8.21% | 1.89% | 8.00% | 12.86% |
+| After `initial_prompt` | 2.85% | 0.75% | 2.84% | 4.69% |
 | After Vocabulary Biasing | **2.83%** | **0.74%** | **2.81%** | **4.64%** |
 
-**65.5% relative WER reduction** · **60.8% relative CER reduction**
+**`initial_prompt` alone**: −65.3% WER · −60.3% CER · −64.5% MER · −63.5% WIL
+
+**Full pipeline**: −65.5% WER · −60.8% CER
+
+#### Effect of `initial_prompt` (before vs after prompt only)
+
+![Effect of Domain initial_prompt](experiment/prompt_comparison.png)
 
 #### v3 vs v4 — Effect of expanding the initial_prompt
 
 | | Baseline | v3 (40-token prompt) | v4 (184-token prompt) |
 |---|---|---|---|
-| WER | 8.21% | 3.54% | **2.83%** |
-| CER | 1.89% | 0.86% | **0.74%** |
+| WER | 8.21% | 3.54% | **2.85%** |
+| CER | 1.89% | 0.86% | **0.75%** |
 | Zero-WER utterances | — | 132 / 200 | **139 / 200** |
 
-Expanding the prompt within the 224-token Whisper limit adds **0.71% absolute WER improvement** at zero additional compute cost.
+Expanding the prompt within the 224-token Whisper limit adds **0.69% absolute WER improvement** at zero additional compute cost.
+
+#### Before vs After Post-Processing (full pipeline)
+
+![Before vs After Post-Processing](experiment/before_after.png)
+
+#### Stage-by-Stage Improvement
+
+![Stage-by-Stage Improvement](experiment/improvement_comparison.png)
 
 #### Per-utterance WER distribution (v4 final)
 
@@ -294,14 +308,6 @@ Expanding the prompt within the 224-token Whisper limit adds **0.71% absolute WE
 | 6–10% | 24 |
 | 11–30% | 21 |
 | >30% | 1 |
-
-#### Before vs After Post-Processing
-
-![Before vs After Post-Processing](experiment/before_after.png)
-
-#### Stage-by-Stage Improvement
-
-![Stage-by-Stage Improvement](experiment/improvement_comparison.png)
 
 #### WER Distribution
 

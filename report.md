@@ -3,9 +3,31 @@
 **End-to-end Speech-to-Text quality improvement system**
 *From synthetic data creation to real-time streaming*
 
-## Demo
+---
+
+## Objective
+
+This project builds an end-to-end pipeline to analyse and improve Speech-to-Text transcription quality using **open-source models only**. The specific goals are:
+
+1. Generate a **minimum 1–2 hours of domain-specific synthetic audio** from ML research paper PDFs using a local TTS model
+2. Establish a **baseline WER** using Whisper large-v3 with no modifications
+3. Apply a **multi-stage improvement pipeline** (domain prompting, text normalisation, vocabulary biasing) and measure WER reduction at each stage
+4. Demonstrate improvements in **real-time streaming** mode with sub-second latency
+
+All components run locally — no external API keys are required.
+
+---
+
+## Live Streaming Demo (Mandatory Requirement)
 
 https://github.com/MuthuAjay/STT/raw/main/Demo/stt_demo.mp4
+
+The streaming system processes audio in real time using the `whisper_streaming` local-agreement algorithm with Silero VAD. Every committed chunk passes through the same post-processing improvements as the offline pipeline (normalisation + vocabulary biasing), achieving **RTF < 0.5** on GPU. Example output per chunk:
+
+```
+[RAW]  Conventional MAUI architectures substitute the feed-forward network's FANs in a transformer with MAUI layers.
+[ENH]  Conventional MoE architectures substitute the feed-forward network's FFNs in a transformer with MoE layers.
+```
 
 ---
 
@@ -30,6 +52,7 @@ https://github.com/MuthuAjay/STT/raw/main/Demo/stt_demo.mp4
 6. [Data Flow Diagrams](#6-data-flow-diagrams)
 7. [Results](#7-results)
 8. [Key Design Decisions](#8-key-design-decisions)
+9. [Deliverables](#9-deliverables)
 
 ---
 
@@ -45,7 +68,7 @@ The solution is a three-phase pipeline:
 | **Offline Pipeline** | Transcribes, evaluates, analyses errors, applies improvement strategies, and re-evaluates |
 | **Real-Time Streaming** | Runs lightweight post-processing improvements in real time with sub-second latency |
 
-All components are **fully open-source** — no API keys required.
+All core components are **fully open-source** and run **locally** without requiring API keys..
 
 ---
 
@@ -74,10 +97,30 @@ All components are **fully open-source** — no API keys required.
 
 **Entry point**: `synthetic_data_generation/pdf_to_synthetic_data.py`
 
+### Dataset at a Glance
+
+| Property | Value |
+|---|---|
+| Total utterances | 757 |
+| Total duration | **1.98 hours** |
+| Source material | ML research paper PDFs |
+| TTS model | Fish Audio S2 Pro (local, no API key) |
+| Audio format | WAV, 16 kHz mono |
+| Word range per utterance | 6 – 60 words |
+| Prosody styles | 5 (cycled per utterance) |
+
+**Example pair:**
+
+| | Content |
+|---|---|
+| Audio | `ml_synth_0023.wav` |
+| Reference | `"Conventional MoE architectures substitute the Feed Forward Networks FFNs in a Transformer with MoE layers."` |
+| Duration | ~5 s |
+
 ### Why Synthetic Data?
 
 Standard audio datasets (LibriSpeech, CommonVoice) contain none of the technical vocabulary that causes errors with domain-specific content. Rather than collecting real recordings, synthetic audio is generated directly from research paper text, producing:
-- Perfectly aligned audio-transcript pairs
+- Highly accurate and noise-free audio-transcript pairs
 - Exactly the vocabulary the model needs to handle
 - Acoustic variety through 5 prosody styles
 
@@ -734,7 +777,35 @@ Audio Input (microphone / WAV file)
 
 **`initial_prompt` alone**: −65.3% WER · −60.3% CER · −64.5% MER · −63.5% WIL
 
-**Full pipeline**: 65.5% relative reduction in WER And 60.8% relative reduction in CER
+**Full pipeline**: 65.5% relative reduction in WER · 60.8% relative reduction in CER
+
+#### Concrete Before / After Examples
+
+**Example 1 — OOV proper noun failure**
+```
+REF:   Conventional MoE architectures substitute the Feed Forward Networks FFNs
+       in a Transformer with MoE layers.
+
+BASE:  Conventional MAUI architectures substitute the feed-forward network's FANs
+       in a transformer with MAUI layers.          ← WER: 40%
+
+FINAL: Conventional MoE architectures substitute the feed-forward network's FFNs
+       in a transformer with MoE layers.           ← WER: 0%
+```
+
+**Example 2 — Model name splitting**
+```
+REF:   With only 4 routed experts activated, DeepSeekMoE achieves a Pile loss
+       comparable with GShard.
+
+BASE:  With only four routed experts activated, DeepSeek Mo achieves a pile loss
+       comparable with G-Shard.                   ← WER: 21.4%
+
+FINAL: With only four routed experts activated, DeepSeekMoE achieves a pile loss
+       comparable with GShard.                    ← WER: 0%
+```
+
+Both errors (`MAUI` for `MoE`, `DeepSeek Mo` for `DeepSeekMoE`, `G-Shard` for `GShard`) are resolved by the domain `initial_prompt` alone — before any vocabulary biasing is applied.
 
 #### Effect of `initial_prompt` (before vs after prompt only)
 
@@ -803,3 +874,37 @@ Fixed-window approaches commit words after a fixed delay regardless of whether s
 **Why two separate packages (`pipeline/` and `src/`)?**
 
 `src/` contains the original numbered scripts kept intact for reproducibility — they can be run independently to verify individual steps without the OOP wrapper. `pipeline/` is a clean rewrite that imports nothing from `src/`, implementing the same logic with explicit skip conditions, structured configuration, and timing instrumentation.
+
+---
+
+## 9. Deliverables
+
+| Deliverable | Location |
+|---|---|
+| **Source code** | https://github.com/MuthuAjay/STT |
+| **Demo video** | `Demo/stt_demo.mp4` (embedded at top of this report) |
+| **Synthetic dataset manifest** | `synthetic_data_generation/deepseekMOE_v2/manifest.csv` |
+| **Baseline results** | `experiment/baseline_results.csv` |
+| **Improved results** | `experiment/improved_results.csv` |
+| **Error analysis** | `experiment/error_analysis.json` |
+| **WER distribution chart** | `experiment/wer_distribution.png` |
+| **Top substitutions chart** | `experiment/top_substitutions.png` |
+| **Stage-by-stage comparison** | `experiment/improvement_comparison.png` |
+| **Before/after chart** | `experiment/before_after.png` |
+| **Prompt effect chart** | `experiment/prompt_comparison.png` |
+| **Jupyter notebook** | `notebooks/STT_Pipeline.ipynb` |
+
+### Running the pipeline
+
+```bash
+# Full offline pipeline
+STT_EXPERIMENT=experiment python -m pipeline \
+  --manifest synthetic_data_generation/deepseekMOE_v2/manifest.csv
+
+# Live streaming (microphone)
+python streaming/enhanced_demo.py --mode mic --model large-v3
+
+# File streaming with WER comparison
+python streaming/enhanced_demo.py --mode file \
+  --audio path/to/audio.wav --ref "reference text" --model large-v3
+```
